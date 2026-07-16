@@ -1,0 +1,40 @@
+workspace "unnamed-game"
+    location "build"
+    architecture "x64"
+    configurations { "Debug", "Release" }
+    cppdialect "C++20"
+
+project "unnamed-game"
+    kind "ConsoleApp"
+    language "C++"
+    location "build"    
+
+    files { 
+        "src/**.cpp", 
+        "src/**.hpp", 
+        "src/**.h", 
+        "libraries/include/ImGui/**.cpp", 
+        "libraries/include/box3d/**.h", 
+        "libraries/include/box3d/**.c",
+        "assets/**.*", 
+        "src/shaders/**.*"
+    }
+
+    includedirs { "libraries/*", "*"}
+    libdirs "libraries/lib"
+    links {
+        "opengl32",
+        "winmm",
+        "raylib",
+        "raylibdll",
+        "box3d"
+    }
+
+filter "configurations:Debug"
+    defines "DEBUG"
+    symbols "On"
+
+
+filter "configurations:Release"
+    defines "RELEASE"
+    optimize "Speed"
