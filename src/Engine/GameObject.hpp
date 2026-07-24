@@ -15,6 +15,7 @@ namespace RE
         GameObject();
         GameObject(const b3WorldId& world, const Transform& transform, b3BodyType type);
         GameObject(const b3WorldId& world, const b3Vec3& position, const b3Quat& rotation, b3BodyType type);
+        GameObject(const b3WorldId& world, const b3Vec3& position, b3BodyType type);
         void loadModel(Model* model, const b3ShapeDef& def);
         void loadModel(Model* model, const b3ShapeDef& def, const b3Vec3& box);
         void unload();

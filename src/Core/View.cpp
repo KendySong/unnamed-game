@@ -66,10 +66,16 @@ void View::update()
 		}
 		break;
 
-	case ViewMode::FPS:
+	case ViewMode::FREE:
 		this->updateDirection();
 		RE::Input::instance().executeViewFPS();
 		camera3D.target = camera3D.position + m_direction;	
+		break;
+
+	case ViewMode::FPS:
+		this->updateDirection();
+		RE::Input::instance().executeViewFPS();
+		camera3D.target = camera3D.position + m_direction;
 		break;
 
 	case ViewMode::ORBITAL:
@@ -134,7 +140,7 @@ void View::setupDefaultInput(ViewMode mode)
 		};
 		break;
 
-	case ViewMode::FPS:
+	case ViewMode::FREE:
 		RE::Input::instance().viewFPS.hold[KEY_W] = [&]() -> void {
 			this->camera3D.position += m_direction * m_speed * GetFrameTime();
 		};
@@ -158,6 +164,10 @@ void View::setupDefaultInput(ViewMode mode)
 		RE::Input::instance().viewFPS.hold[KEY_LEFT_SHIFT] = [&]() -> void {
 			camera3D.position.y -= m_speed * GetFrameTime();
 		};
+		break;
+
+	case ViewMode::FPS:
+
 		break;
 	}
 }

@@ -1,24 +1,24 @@
 #include "SandboxScene.hpp"
 
-SandboxScene::SandboxScene() : SceneSkeleton(), m_view(ViewMode::FPS), m_skybox(2000)
+SandboxScene::SandboxScene() : SceneSkeleton(), m_view(ViewMode::FREE), m_skybox(2000)
 {
-	b3ShapeDef shapeDef = b3DefaultShapeDef();
-	shapeDef.density = 2.0;
-	shapeDef.baseMaterial.friction = 0.1;
+	m_shapeDef = b3DefaultShapeDef();
+	m_shapeDef.density = 2.0;
+	m_shapeDef.baseMaterial.friction = 1.0;
 
 	m_view.camera3D.position = { -10, 0, 0 };
 	m_framebuffer = RE::FrameBuffer(800, 450);
 	m_light = RE::PointLight("../assets/shaders/blight.vs", "../assets/shaders/blight.fs", { 0, 5, 0 }, WHITE);
 
-	m_cube = RE::GameObject(world, { 0, -10, 0 }, b3Quat_identity, b3_staticBody);
-	m_cube.loadModel(new Model(LoadModelFromMesh(GenMeshCube(400, 0.1, 400))), shapeDef);
-	m_cube.setShader(m_light.shader);
+	m_customModel = RE::GameObject(world, { 10, 15, 10 }, b3_dynamicBody);
+	m_customModel.loadModel(new Model(LoadModel("../assets/models/spear.obj")), m_shapeDef);
 
-	m_customModel = RE::GameObject(world, { 10, 0, 10 }, b3Quat_identity, b3_dynamicBody);
-	m_customModel.loadModel(new Model(LoadModel("../assets/models/sword.obj")), shapeDef);
 	SetMaterialTexture(&m_customModel.model->materials[0], MATERIAL_MAP_DIFFUSE, LoadTexture("../assets/textures/brick.png"));
-
 	m_customModel.setShader(m_light.shader);
+
+	this->loadMap();
+
+	m_player = Player(world, { 0, 10, 0 });
 }
 
 void SandboxScene::update()
@@ -32,8 +32,8 @@ void SandboxScene::update()
 	b3World_Step(world, dt, Settings::subStepCount);
 
 	m_light.updateUniform();
-	m_cube.updatePhysics();
 	m_customModel.updatePhysics();
+	m_player.update();
 }
 
 void SandboxScene::render()
@@ -41,11 +41,14 @@ void SandboxScene::render()
 	BeginTextureMode(m_framebuffer.target);
 		ClearBackground({ 40, 40, 40 });
 		BeginMode3D(m_view.camera3D);
-		
-			m_cube.draw();
 			m_customModel.draw();
 			m_skybox.draw();
-			DrawSphere({ 0, 0, 0}, 2, RED);
+			DrawSphere({ 0, 10, 0}, 2, RED);
+
+			for (size_t i = 0; i < m_map.size(); i++)
+			{
+				m_map[i].draw();
+			}
 
 		EndMode3D();
 	EndTextureMode();
@@ -59,5 +62,46 @@ void SandboxScene::gui()
 	ImGui::Begin("Settings[sandbox]");
 		m_view.gui();
 		m_skybox.m_box[3].gui();
+
+		for (size_t i = 0; i < m_map.size(); i++)
+		{
+			ImGui::PushID(i);
+				m_map[i].gui();
+			ImGui::PopID();
+		}
+
 	ImGui::End();
+}
+
+void SandboxScene::loadMap()
+{
+	Model* p1 = new Model(LoadModel("../assets/models/p1.obj"));
+	Model* p2 = new Model(LoadModel("../assets/models/p2.obj"));
+	Model* p3 = new Model(LoadModel("../assets/models/p3.obj"));
+	Model* p4 = new Model(LoadModel("../assets/models/p4.obj"));
+
+	Texture2D groundTexture = LoadTexture("../assets/textures/ground.png");
+	m_map.emplace_back(RE::GameObject(world, { 0, -15, 0 }, b3_staticBody));
+	m_map[0].loadModel(p1, m_shapeDef);
+	SetMaterialTexture(&m_map[0].model->materials[0], MATERIAL_MAP_DIFFUSE, groundTexture);
+
+	m_map.emplace_back(RE::GameObject(world, { 48, -15, 20 }, b3_staticBody));
+	m_map[1].loadModel(p1, m_shapeDef);
+	SetMaterialTexture(&m_map[1].model->materials[0], MATERIAL_MAP_DIFFUSE, groundTexture);
+
+	m_map.emplace_back(RE::GameObject(world, { -47, -21, -29 }, b3_staticBody));
+	m_map[2].loadModel(p1, m_shapeDef);
+	SetMaterialTexture(&m_map[2].model->materials[0], MATERIAL_MAP_DIFFUSE, groundTexture);
+
+	m_map.emplace_back(RE::GameObject(world, { -8, -21, -45 }, b3_staticBody));
+	m_map[3].loadModel(p2, m_shapeDef);
+	SetMaterialTexture(&m_map[3].model->materials[0], MATERIAL_MAP_DIFFUSE, groundTexture);
+
+	m_map.emplace_back(RE::GameObject(world, { -69, -21, 38 }, b3_staticBody));
+	m_map[4].loadModel(p3, m_shapeDef);
+	SetMaterialTexture(&m_map[4].model->materials[0], MATERIAL_MAP_DIFFUSE, groundTexture);
+
+	m_map.emplace_back(RE::GameObject(world, { 200, 2.7, 0 }, b3_staticBody));
+	m_map[5].loadModel(p4, m_shapeDef);
+	SetMaterialTexture(&m_map[5].model->materials[0], MATERIAL_MAP_DIFFUSE, groundTexture);
 }

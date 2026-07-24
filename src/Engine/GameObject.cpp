@@ -26,6 +26,11 @@ RE::GameObject::GameObject(const b3WorldId& world, const b3Vec3& position, const
     
 }
 
+RE::GameObject::GameObject(const b3WorldId& world, const b3Vec3& position, b3BodyType type) : GameObject(world, { position, b3Quat_identity, { 1, 1, 1 } }, type)
+{
+
+}
+
 void RE::GameObject::loadModel(Model* model, const b3ShapeDef& def)
 {
     this->model = model;
@@ -45,7 +50,7 @@ void RE::GameObject::loadModel(Model* model, const b3ShapeDef& def)
     //Dont work if volume is 0
     hull = b3CreateHull(points.data(), points.size(), Settings::maxHullVertexCount);
     b3CreateHullShape(id, &def, hull);
-
+    
     this->updatePhysics();
 }
 

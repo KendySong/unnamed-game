@@ -5,8 +5,12 @@ Skybox::Skybox(float size)
 	float hsize = size / 2;
 	RE::AssetManager& assetM = RE::AssetManager::instance();
 
-	assetM.model["skybox"] = LoadModelFromMesh(GenMeshCube(size, size, 0.1));
-	assetM.setModeleTexture("skybox", MATERIAL_MAP_DIFFUSE, LoadTexture("../assets/textures/night.png"));
+	//Closest direct pixel reading
+	Texture2D skyboxTexture = LoadTexture("../assets/textures/night.png");
+	SetTextureFilter(skyboxTexture, TEXTURE_FILTER_POINT);	
+
+	assetM.model["skybox"] = LoadModelFromMesh(GenMeshCube(size, size, 0.1));	
+	assetM.setModeleTexture("skybox", MATERIAL_MAP_DIFFUSE, skyboxTexture);
 	
 	for (size_t i = 0; i < 6; i++)
 	{
