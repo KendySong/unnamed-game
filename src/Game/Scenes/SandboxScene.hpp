@@ -2,6 +2,8 @@
 #pragma once
 #include <RayEngine.hpp>
 
+#include "../Skybox.hpp"
+
 class SandboxScene : public RE::SceneSkeleton
 {
 public :
@@ -17,4 +19,6 @@ private :
 
 	RE::GameObject m_cube;
 	RE::GameObject m_customModel;
+
+	Skybox m_skybox;
 };

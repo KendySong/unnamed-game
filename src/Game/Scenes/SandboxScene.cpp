@@ -1,13 +1,13 @@
 #include "SandboxScene.hpp"
 
-SandboxScene::SandboxScene() : SceneSkeleton(), m_view(ViewMode::FPS)
+SandboxScene::SandboxScene() : SceneSkeleton(), m_view(ViewMode::FPS), m_skybox(2000)
 {
 	b3ShapeDef shapeDef = b3DefaultShapeDef();
 	shapeDef.density = 2.0;
 	shapeDef.baseMaterial.friction = 0.1;
 
 	m_view.camera3D.position = { -10, 0, 0 };
-	m_framebuffer = RE::FrameBuffer(1600, 900);
+	m_framebuffer = RE::FrameBuffer(800, 450);
 	m_light = RE::PointLight("../assets/shaders/blight.vs", "../assets/shaders/blight.fs", { 0, 5, 0 }, WHITE);
 
 	m_cube = RE::GameObject(world, { 0, -10, 0 }, b3Quat_identity, b3_staticBody);
@@ -16,6 +16,8 @@ SandboxScene::SandboxScene() : SceneSkeleton(), m_view(ViewMode::FPS)
 
 	m_customModel = RE::GameObject(world, { 10, 0, 10 }, b3Quat_identity, b3_dynamicBody);
 	m_customModel.loadModel(new Model(LoadModel("../assets/models/sword.obj")), shapeDef);
+	SetMaterialTexture(&m_customModel.model->materials[0], MATERIAL_MAP_DIFFUSE, LoadTexture("../assets/textures/brick.png"));
+
 	m_customModel.setShader(m_light.shader);
 }
 
@@ -42,6 +44,8 @@ void SandboxScene::render()
 		
 			m_cube.draw();
 			m_customModel.draw();
+			m_skybox.draw();
+			DrawSphere({ 0, 0, 0}, 2, RED);
 
 		EndMode3D();
 	EndTextureMode();
@@ -54,5 +58,6 @@ void SandboxScene::gui()
 {
 	ImGui::Begin("Settings[sandbox]");
 		m_view.gui();
+		m_skybox.m_box[3].gui();
 	ImGui::End();
 }
